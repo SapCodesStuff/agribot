@@ -17,6 +17,139 @@
             background: linear-gradient(135deg, #000000 0%, #001a00 100%);
             color: #fff;
             overflow-x: hidden;
+            scroll-behavior: smooth;
+            scroll-padding-top: 80px;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 80px;
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px 0;
+            z-index: 1000;
+            border-bottom: 2px solid rgba(0, 255, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .navbar.scrolled {
+            background: rgba(0, 0, 0, 0.98);
+            box-shadow: 0 5px 30px rgba(0, 255, 0, 0.3);
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 30px;
+        }
+
+        .nav-logo {
+            font-size: 1.5rem;
+            font-weight: 900;
+            background: linear-gradient(90deg, #00ff00, #66ff66);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: #8fbc8f;
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+            padding: 5px 0;
+            cursor: pointer;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #00ff00, #66ff66);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: #00ff00;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .nav-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .nav-toggle span {
+            width: 25px;
+            height: 3px;
+            background: #00ff00;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-toggle.active span:nth-child(1) {
+            transform: rotate(45deg) translate(8px, 8px);
+        }
+
+        .nav-toggle.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .nav-toggle.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -7px);
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                position: fixed;
+                top: 60px;
+                right: -100%;
+                flex-direction: column;
+                background: rgba(0, 0, 0, 0.98);
+                width: 250px;
+                padding: 30px;
+                gap: 20px;
+                border-left: 2px solid rgba(0, 255, 0, 0.3);
+                transition: right 0.3s ease;
+                box-shadow: -5px 0 30px rgba(0, 255, 0, 0.2);
+            }
+
+            .nav-links.active {
+                right: 0;
+            }
+
+            .nav-toggle {
+                display: flex;
+            }
         }
 
         .hero {
@@ -239,6 +372,7 @@
             opacity: 0;
             transform: translateY(50px);
             animation: floatIn 0.8s ease-out forwards;
+            cursor: pointer;
         }
 
         .feature-card:nth-child(1) { animation-delay: 0.2s; }
@@ -307,6 +441,7 @@
             opacity: 0;
             transform: translateY(40px) scale(0.95);
             animation: moduleFloat 0.8s ease-out forwards;
+            cursor: pointer;
         }
 
         .module-card:nth-child(1) { animation-delay: 0.1s; }
@@ -387,6 +522,7 @@
             transition: all 0.5s ease;
             position: relative;
             overflow: hidden;
+            cursor: pointer;
         }
 
         .advantage-card::before {
@@ -461,6 +597,7 @@
             opacity: 0;
             transform: translateX(-50px);
             animation: slideInTimeline 0.8s ease-out forwards;
+            cursor: pointer;
         }
 
         .tech-item:nth-child(1) { animation-delay: 0.2s; }
@@ -565,6 +702,7 @@
             opacity: 0;
             transform: translateY(30px);
             animation: floatIn 0.6s ease-out forwards;
+            cursor: pointer;
         }
 
         .spec-item:nth-child(1) { animation-delay: 0.1s; }
@@ -615,7 +753,26 @@
     </style>
 </head>
 <body>
-    <div class="hero">
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <div class="nav-logo" onclick="scrollToSection('hero')">AGRIBOT</div>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="#hero" onclick="closeMenu()">Home</a></li>
+                <li><a href="#features" onclick="closeMenu()">Features</a></li>
+                <li><a href="#modules" onclick="closeMenu()">Modules</a></li>
+                <li><a href="#advantages" onclick="closeMenu()">Advantages</a></li>
+                <li><a href="#future" onclick="closeMenu()">Future Tech</a></li>
+                <li><a href="#specs" onclick="closeMenu()">Specs</a></li>
+            </ul>
+            <div class="nav-toggle" id="navToggle" onclick="toggleMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="hero" id="hero">
         <div class="hero-content">
             <h1>AGRIBOT</h1>
             <p class="tagline">The Future of Autonomous Farming</p>
@@ -635,7 +792,7 @@
     </div>
 
     <div class="features">
-        <h2>Modular System Architecture</h2>
+        <h2 id="features">Modular System Architecture</h2>
         <div class="module-hero">
             <div class="module-tagline">
                 <h3>One Base. Infinite Possibilities.</h3>
@@ -658,7 +815,7 @@
             </div>
         </div>
 
-        <h2 style="margin-top: 80px;">Available Modules</h2>
+        <h2 style="margin-top: 80px;" id="modules">Available Modules</h2>
         <div class="modules-grid">
             <div class="module-card">
                 <div class="module-icon">🚜</div>
@@ -694,7 +851,7 @@
     </div>
 
     <div class="advantages">
-        <h2>Modular Advantages</h2>
+        <h2 id="advantages">Modular Advantages</h2>
         <div class="advantage-grid">
             <div class="advantage-card">
                 <div class="advantage-number">01</div>
@@ -720,7 +877,7 @@
     </div>
 
     <div class="future-tech">
-        <h2>Future-Ready Technology</h2>
+        <h2 id="future">Future-Ready Technology</h2>
         <div class="tech-timeline">
             <div class="tech-item">
                 <div class="tech-badge">ACTIVE</div>
@@ -741,7 +898,7 @@
     </div>
 
     <div class="specs">
-        <h2>Technical Specifications</h2>
+        <h2 id="specs">Technical Specifications</h2>
         <div class="specs-grid">
             <div class="spec-item">
                 <div class="spec-value">48V</div>
@@ -772,6 +929,99 @@
     </div>
 
     <script>
+        // Smooth scroll polyfill for better browser support
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+                const targetElement = document.getElementById(targetId);
+                
+                if (targetElement) {
+                    const navbarHeight = 80;
+                    const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset - navbarHeight;
+                    
+                    window.scrollTo({
+                        top: targetPosition,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // Navbar scroll effect with smooth transition
+        const navbar = document.getElementById('navbar');
+        let lastScrollTop = 0;
+        
+        window.addEventListener('scroll', () => {
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            
+            if (scrollTop > 100) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+            
+            lastScrollTop = scrollTop;
+        });
+
+        // Mobile menu toggle
+        function toggleMenu() {
+            const navLinks = document.getElementById('navLinks');
+            const navToggle = document.getElementById('navToggle');
+            navLinks.classList.toggle('active');
+            navToggle.classList.toggle('active');
+        }
+
+        function closeMenu() {
+            const navLinks = document.getElementById('navLinks');
+            const navToggle = document.getElementById('navToggle');
+            navLinks.classList.remove('active');
+            navToggle.classList.remove('active');
+        }
+
+        function scrollToSection(id) {
+            const element = document.getElementById(id);
+            if (element) {
+                const navbarHeight = 80;
+                const targetPosition = element.getBoundingClientRect().top + window.pageYOffset - navbarHeight;
+                
+                window.scrollTo({
+                    top: targetPosition,
+                    behavior: 'smooth'
+                });
+            }
+            closeMenu();
+        }
+
+        // Smooth scroll observer for section highlighting
+        const sections = document.querySelectorAll('div[id], h2[id]');
+        const navLinksList = document.querySelectorAll('.nav-links a');
+
+        const observerOptions = {
+            root: null,
+            rootMargin: '-100px 0px -80% 0px',
+            threshold: 0
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const id = entry.target.getAttribute('id');
+                    navLinksList.forEach(link => {
+                        link.style.color = '#8fbc8f';
+                        if (link.getAttribute('href') === `#${id}`) {
+                            link.style.color = '#00ff00';
+                        }
+                    });
+                }
+            });
+        }, observerOptions);
+
+        sections.forEach(section => {
+            observer.observe(section);
+        });
+
+        // Three.js scene code
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(0x000000);
         scene.fog = new THREE.Fog(0x000000, 10, 50);
