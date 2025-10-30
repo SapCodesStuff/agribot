@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgriBot - Revolutionary Farming Technology</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #000000 0%, #001a00 100%);
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .hero {
+            height: 100vh;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .hero-content {
+            text-align: center;
+            z-index: 10;
+            position: absolute;
+            top: 10%;
+        }
+
+        .content-wrapper {
+            position: relative;
+            z-index: 10;
+        }
+
+        h1 {
+            font-size: 4.5rem;
+            font-weight: 900;
+            background: linear-gradient(90deg, #00ff00, #66ff66, #00ff88, #66ff66, #00ff00);
+            background-size: 300% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 40px rgba(0, 255, 0, 0.5);
+            animation: gradientShift 4s linear infinite;
+            letter-spacing: 0.15em;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% center; }
+            100% { background-position: 300% center; }
+        }
+
+        .tagline {
+            font-size: 1.5rem;
+            color: #8fbc8f;
+            margin-bottom: 2rem;
+            animation: fadeInSlide 2s ease-out 0.5s both;
+            text-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+        }
+
+        @keyframes fadeInSlide {
+            from { 
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        #canvas-container {
+            width: 100%;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 0;
+        }
+
+        .dark-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.8));
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .component-info {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 20, 0, 0.98);
+            border: 2px solid #00ff00;
+            padding: 15px 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            z-index: 100;
+            min-width: 250px;
+            max-width: 450px;
+            text-align: center;
+            box-shadow: 0 10px 50px rgba(0, 255, 0, 0.5);
+        }
+
+        .component-info.active {
+            opacity: 1;
+            transform: translateX(-50%) translateY(-10px);
+        }
+
+        .component-info h3 {
+            color: #00ff00;
+            margin-bottom: 8px;
+            font-size: 1rem;
+            text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        }
+
+        .component-info p {
+            color: #ccc;
+            line-height: 1.4;
+            font-size: 0.85rem;
+        }
+
+        .zoom-lens {
+            position: fixed;
+            top: 50%;
+            right: 50px;
+            transform: translateY(-50%);
+            width: 350px;
+            height: 350px;
+            border: 4px solid #ffff00;
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            z-index: 99;
+            box-shadow: 0 0 40px rgba(255, 255, 0, 0.8), inset 0 0 40px rgba(255, 255, 0, 0.3);
+            backdrop-filter: blur(0px);
+            overflow: hidden;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .zoom-lens.active {
+            opacity: 1;
+            transform: translateY(-50%) scale(1.05);
+        }
+
+        .zoom-lens::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, transparent 35%, rgba(0, 0, 0, 0.5) 100%);
+            pointer-events: none;
+        }
+
+        .zoom-lens::after {
+            content: 'ZOOM VIEW';
+            position: absolute;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #ffff00;
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(255, 255, 0, 0.8);
+        }
+
+        .features {
+            padding: 100px 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.95));
+            border-radius: 30px 30px 0 0;
+        }
+
+        .features h2 {
+            text-align: center;
+            font-size: 3rem;
+            margin-bottom: 60px;
+            color: #00ff00;
+            text-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+        }
+
+        .module-hero {
+            text-align: center;
+            margin-bottom: 60px;
+            padding: 40px;
+            background: linear-gradient(135deg, rgba(0, 255, 0, 0.05), rgba(0, 255, 0, 0.1));
+            border-radius: 20px;
+            border: 2px solid rgba(0, 255, 0, 0.2);
+        }
+
+        .module-tagline h3 {
+            font-size: 2.5rem;
+            color: #00ff00;
+            margin-bottom: 15px;
+            text-shadow: 0 0 30px rgba(0, 255, 0, 0.6);
+        }
+
+        .module-tagline p {
+            font-size: 1.3rem;
+            color: #8fbc8f;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            margin-top: 50px;
+        }
+
+        .feature-card {
+            background: linear-gradient(135deg, rgba(0, 255, 0, 0.1) 0%, rgba(0, 0, 0, 0.9) 100%);
+            padding: 40px;
+            border-radius: 20px;
+            border: 2px solid rgba(0, 255, 0, 0.3);
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(50px);
+            animation: floatIn 0.8s ease-out forwards;
+        }
+
+        .feature-card:nth-child(1) { animation-delay: 0.2s; }
+        .feature-card:nth-child(2) { animation-delay: 0.4s; }
+        .feature-card:nth-child(3) { animation-delay: 0.6s; }
+
+        @keyframes floatIn {
+            from {
+                opacity: 0;
+                transform: translateY(50px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 255, 0, 0.15) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-15px) scale(1.03) rotateY(5deg);
+            border-color: #00ff00;
+            box-shadow: 0 25px 70px rgba(0, 255, 0, 0.5);
+        }
+
+        .feature-card h3 {
+            color: #00ff00;
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+        }
+
+        .feature-card p {
+            color: #ccc;
+            line-height: 1.8;
+            font-size: 1.1rem;
+        }
+
+        .modules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+
+        .module-card {
+            background: linear-gradient(135deg, rgba(0, 255, 0, 0.05), rgba(0, 0, 0, 0.95));
+            padding: 35px;
+            border-radius: 20px;
+            border: 2px solid rgba(0, 255, 0, 0.2);
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            text-align: center;
+            opacity: 0;
+            transform: translateY(40px) scale(0.95);
+            animation: moduleFloat 0.8s ease-out forwards;
+        }
+
+        .module-card:nth-child(1) { animation-delay: 0.1s; }
+        .module-card:nth-child(2) { animation-delay: 0.2s; }
+        .module-card:nth-child(3) { animation-delay: 0.3s; }
+        .module-card:nth-child(4) { animation-delay: 0.4s; }
+        .module-card:nth-child(5) { animation-delay: 0.5s; }
+        .module-card:nth-child(6) { animation-delay: 0.6s; }
+
+        @keyframes moduleFloat {
+            from {
+                opacity: 0;
+                transform: translateY(40px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .module-card:hover {
+            transform: translateY(-15px) scale(1.05);
+            border-color: #00ff00;
+            box-shadow: 0 20px 60px rgba(0, 255, 0, 0.5);
+            background: linear-gradient(135deg, rgba(0, 255, 0, 0.15), rgba(0, 0, 0, 0.9));
+        }
+
+        .module-icon {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            animation: iconPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes iconPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .module-card h3 {
+            color: #00ff00;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+
+        .module-card p {
+            color: #ccc;
+            line-height: 1.7;
+            font-size: 1rem;
+        }
+
+        .advantages {
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.95), rgba(0, 20, 0, 0.95));
+            padding: 100px 20px;
+            margin-top: 0;
+        }
+
+        .advantages h2 {
+            text-align: center;
+            color: #00ff00;
+            font-size: 3rem;
+            margin-bottom: 60px;
+            text-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+        }
+
+        .advantage-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 35px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .advantage-card {
+            background: linear-gradient(135deg, rgba(0, 255, 0, 0.08), rgba(0, 0, 0, 0.9));
+            padding: 40px;
+            border-radius: 20px;
+            border: 2px solid rgba(0, 255, 0, 0.25);
+            transition: all 0.5s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .advantage-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, #00ff00, transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s ease;
+        }
+
+        .advantage-card:hover::before {
+            transform: translateX(100%);
+        }
+
+        .advantage-card:hover {
+            transform: translateY(-12px);
+            border-color: #00ff00;
+            box-shadow: 0 20px 50px rgba(0, 255, 0, 0.4);
+        }
+
+        .advantage-number {
+            font-size: 3rem;
+            font-weight: 900;
+            color: rgba(0, 255, 0, 0.2);
+            margin-bottom: 15px;
+            text-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+        }
+
+        .advantage-card h3 {
+            color: #00ff00;
+            font-size: 1.6rem;
+            margin-bottom: 15px;
+        }
+
+        .advantage-card p {
+            color: #ccc;
+            line-height: 1.8;
+            font-size: 1.05rem;
+        }
+
+        .future-tech {
+            background: linear-gradient(to bottom, rgba(0, 20, 0, 0.95), rgba(0, 0, 0, 0.95));
+            padding: 100px 20px;
+        }
+
+        .future-tech h2 {
+            text-align: center;
+            color: #00ff00;
+            font-size: 3rem;
+            margin-bottom: 60px;
+            text-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+        }
+
+        .tech-timeline {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+        }
+
+        .tech-item {
+            background: linear-gradient(135deg, rgba(0, 255, 0, 0.05), rgba(0, 0, 0, 0.95));
+            padding: 40px;
+            border-radius: 20px;
+            border-left: 5px solid #00ff00;
+            transition: all 0.5s ease;
+            opacity: 0;
+            transform: translateX(-50px);
+            animation: slideInTimeline 0.8s ease-out forwards;
+        }
+
+        .tech-item:nth-child(1) { animation-delay: 0.2s; }
+        .tech-item:nth-child(2) { animation-delay: 0.4s; }
+        .tech-item:nth-child(3) { animation-delay: 0.6s; }
+
+        @keyframes slideInTimeline {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .tech-item:hover {
+            transform: translateX(20px);
+            box-shadow: 0 15px 40px rgba(0, 255, 0, 0.4);
+            border-left-width: 8px;
+        }
+
+        .tech-badge {
+            display: inline-block;
+            background: linear-gradient(90deg, #00ff00, #66ff66);
+            color: #000;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.6);
+        }
+
+        .tech-item h3 {
+            color: #00ff00;
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+        }
+
+        .tech-item p {
+            color: #ccc;
+            line-height: 1.8;
+            font-size: 1.1rem;
+        }
+
+        .controls-hint {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: rgba(0, 20, 0, 0.95);
+            padding: 15px 25px;
+            border-radius: 10px;
+            border: 1px solid #00ff00;
+            font-size: 0.9rem;
+            color: #8fbc8f;
+            animation: pulse 2s ease-in-out infinite;
+            z-index: 50;
+        }
+
+        @keyframes pulse {
+            0%, 100% { 
+                opacity: 0.6;
+                box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+            }
+            50% { 
+                opacity: 1;
+                box-shadow: 0 0 20px rgba(0, 255, 0, 0.6);
+            }
+        }
+
+        .specs {
+            background: rgba(0, 0, 0, 0.95);
+            padding: 80px 20px;
+            margin-top: 0;
+        }
+
+        .specs h2 {
+            text-align: center;
+            color: #00ff00;
+            font-size: 2.5rem;
+            margin-bottom: 40px;
+            text-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+        }
+
+        .specs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .spec-item {
+            text-align: center;
+            padding: 30px;
+            background: rgba(0, 255, 0, 0.05);
+            border-radius: 15px;
+            border: 1px solid rgba(0, 255, 0, 0.3);
+            transition: all 0.4s ease;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: floatIn 0.6s ease-out forwards;
+        }
+
+        .spec-item:nth-child(1) { animation-delay: 0.1s; }
+        .spec-item:nth-child(2) { animation-delay: 0.2s; }
+        .spec-item:nth-child(3) { animation-delay: 0.3s; }
+        .spec-item:nth-child(4) { animation-delay: 0.4s; }
+        .spec-item:nth-child(5) { animation-delay: 0.5s; }
+        .spec-item:nth-child(6) { animation-delay: 0.6s; }
+
+        .spec-item:hover {
+            background: rgba(0, 255, 0, 0.15);
+            transform: translateY(-10px) scale(1.05);
+            box-shadow: 0 15px 40px rgba(0, 255, 0, 0.4);
+        }
+
+        .spec-value {
+            font-size: 2rem;
+            color: #00ff00;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        }
+
+        .spec-label {
+            color: #8fbc8f;
+            font-size: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            .module-hero h3 {
+                font-size: 1.8rem;
+            }
+            
+            .modules-grid,
+            .advantage-grid,
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .zoom-lens {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <div class="hero-content">
+            <h1>AGRIBOT</h1>
+            <p class="tagline">The Future of Autonomous Farming</p>
+        </div>
+        <div id="canvas-container"></div>
+        <div class="dark-overlay"></div>
+        <div class="controls-hint">🖱️ Drag to rotate • Hover over components</div>
+    </div>
+
+    <div class="content-wrapper">
+
+    <div class="zoom-lens" id="zoom-lens"></div>
+
+    <div class="component-info" id="component-info">
+        <h3 id="info-title">Component Name</h3>
+        <p id="info-description">Description</p>
+    </div>
+
+    <div class="features">
+        <h2>Modular System Architecture</h2>
+        <div class="module-hero">
+            <div class="module-tagline">
+                <h3>One Base. Infinite Possibilities.</h3>
+                <p>Universal robot platform with quick-swap attachments for every farming task</p>
+            </div>
+        </div>
+        
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h3>🔄 Universal Base Unit</h3>
+                <p>Single robot platform houses motors, power systems, and advanced sensors. Rapid tool-less swaps between modules in under 60 seconds with auto-detection technology.</p>
+            </div>
+            <div class="feature-card">
+                <h3>🔌 Smart Module System</h3>
+                <p>Standardized power and data ports across all attachments. RFID-enabled auto-identification ensures seamless compatibility and plug-and-play operation.</p>
+            </div>
+            <div class="feature-card">
+                <h3>💰 Lower Entry Cost</h3>
+                <p>Invest in one base platform, add modules as needed. Shared electronics and frame reduce initial capital while enabling recurring revenue through modular upgrades.</p>
+            </div>
+        </div>
+
+        <h2 style="margin-top: 80px;">Available Modules</h2>
+        <div class="modules-grid">
+            <div class="module-card">
+                <div class="module-icon">🚜</div>
+                <h3>Ploughing Module</h3>
+                <p>Heavy-duty blade and tiller attachment for soil preparation. Adjustable depth control with reinforced mounting.</p>
+            </div>
+            <div class="module-card">
+                <div class="module-icon">🌱</div>
+                <h3>Sowing Module</h3>
+                <p>Precision seed dispenser with variable rate control. Capacity: 20kg seeds, adjustable spacing and depth.</p>
+            </div>
+            <div class="module-card">
+                <div class="module-icon">💧</div>
+                <h3>Watering Module</h3>
+                <p>Automated sprinkler and drip-line positioning system. Flow rate: 5L/min with soil moisture feedback.</p>
+            </div>
+            <div class="module-card">
+                <div class="module-icon">🎯</div>
+                <h3>Spraying Module</h3>
+                <p>Pesticide and fertilizer distribution tank. Precision nozzles with AI-guided targeting for minimal waste.</p>
+            </div>
+            <div class="module-card">
+                <div class="module-icon">📊</div>
+                <h3>Sensor Array Module</h3>
+                <p>Multi-point moisture detection grid. Real-time soil health monitoring with cloud data analytics.</p>
+            </div>
+            <div class="module-card">
+                <div class="module-icon">⚙️</div>
+                <h3>Terrain Adapters</h3>
+                <p>Swappable wheel and track configurations. Optimized for different soil types and weather conditions.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="advantages">
+        <h2>Modular Advantages</h2>
+        <div class="advantage-grid">
+            <div class="advantage-card">
+                <div class="advantage-number">01</div>
+                <h3>Standard Connectors</h3>
+                <p>Universal power and data ports ensure every module works seamlessly. Weatherproof IP67-rated connections for reliability.</p>
+            </div>
+            <div class="advantage-card">
+                <div class="advantage-number">02</div>
+                <h3>Reinforced Joints</h3>
+                <p>Industrial-grade attachment points built for durability. Tested for 10,000+ swap cycles without degradation.</p>
+            </div>
+            <div class="advantage-card">
+                <div class="advantage-number">03</div>
+                <h3>Guided Training</h3>
+                <p>Built-in visual guides and haptic feedback prevent mishandling. Mobile app tutorials for every module installation.</p>
+            </div>
+            <div class="advantage-card">
+                <div class="advantage-number">04</div>
+                <h3>Shared Economics</h3>
+                <p>Single frame and electronics across all modules dramatically reduce per-task costs and maintenance complexity.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="future-tech">
+        <h2>Future-Ready Technology</h2>
+        <div class="tech-timeline">
+            <div class="tech-item">
+                <div class="tech-badge">ACTIVE</div>
+                <h3>RFID Module Identification</h3>
+                <p>Automatic detection and configuration when modules are attached. Instant firmware updates and calibration.</p>
+            </div>
+            <div class="tech-item">
+                <div class="tech-badge">Q2 2026</div>
+                <h3>AI Terrain Sensing</h3>
+                <p>Machine learning-powered ground analysis. Real-time adaptation of speed, pressure, and tool angles based on soil conditions.</p>
+            </div>
+            <div class="tech-item">
+                <div class="tech-badge">Q4 2026</div>
+                <h3>Predictive Maintenance</h3>
+                <p>Cloud-based analytics track module wear patterns. Data-driven servicing recommendations extend equipment lifespan by 40%.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="specs">
+        <h2>Technical Specifications</h2>
+        <div class="specs-grid">
+            <div class="spec-item">
+                <div class="spec-value">48V</div>
+                <div class="spec-label">Power System</div>
+            </div>
+            <div class="spec-item">
+                <div class="spec-value">20kg</div>
+                <div class="spec-label">Max Module Weight</div>
+            </div>
+            <div class="spec-item">
+                <div class="spec-value">8hrs</div>
+                <div class="spec-label">Battery Life</div>
+            </div>
+            <div class="spec-item">
+                <div class="spec-value">&lt;60s</div>
+                <div class="spec-label">Module Swap Time</div>
+            </div>
+            <div class="spec-item">
+                <div class="spec-value">IP67</div>
+                <div class="spec-label">Weather Rating</div>
+            </div>
+            <div class="spec-item">
+                <div class="spec-value">6+</div>
+                <div class="spec-label">Available Modules</div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <script>
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x000000);
+        scene.fog = new THREE.Fog(0x000000, 10, 50);
+
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 3, 10);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
+        scene.add(ambientLight);
+
+        const spotLight1 = new THREE.SpotLight(0x00ff00, 1.5);
+        spotLight1.position.set(10, 10, 10);
+        spotLight1.castShadow = true;
+        scene.add(spotLight1);
+
+        const spotLight2 = new THREE.SpotLight(0x33ff33, 1);
+        spotLight2.position.set(-10, 8, -5);
+        scene.add(spotLight2);
+
+        const pointLight = new THREE.PointLight(0x00ff00, 0.6);
+        pointLight.position.set(0, 5, 0);
+        scene.add(pointLight);
+
+        const components = [];
+        const wheels = [];
+
+        const bodyGeometry = new THREE.BoxGeometry(4, 1, 2);
+        const bodyMaterial = new THREE.MeshPhongMaterial({
+            color: 0x00ff00,
+            wireframe: true,
+            wireframeLinewidth: 2
+        });
+        const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+        body.position.y = 1;
+        body.castShadow = true;
+        body.userData = { 
+            name: 'Main Chassis',
+            description: 'Reinforced aluminum frame with IP67 weatherproofing. Houses main control system, power distribution, and GPS navigation module.'
+        };
+        scene.add(body);
+        components.push(body);
+
+        const barGeometry = new THREE.BoxGeometry(3.8, 0.08, 0.08);
+        const barMaterial = new THREE.MeshPhongMaterial({ color: 0x00ff00, wireframe: true });
+        
+        for (let i = 0; i < 3; i++) {
+            const bar = new THREE.Mesh(barGeometry, barMaterial);
+            bar.position.set(0, 0.5 + i * 0.3, 0.95);
+            bar.userData = body.userData;
+            scene.add(bar);
+            components.push(bar);
+        }
+
+        const seedMainGeometry = new THREE.CylinderGeometry(0.4, 0.4, 1, 16);
+        const seedMaterial = new THREE.MeshPhongMaterial({ color: 0x00ff00, wireframe: true });
+        const seedMain = new THREE.Mesh(seedMainGeometry, seedMaterial);
+        seedMain.position.set(-1.3, 1.5, 0);
+        seedMain.userData = {
+            name: 'Precision Seed Dispenser',
+            description: 'Variable-rate seeding system with pneumatic delivery. Capacity: 20kg seeds. Adjustable depth: 2-10cm.'
+        };
+        scene.add(seedMain);
+        components.push(seedMain);
+
+        const seedHopperGeometry = new THREE.ConeGeometry(0.5, 0.6, 16);
+        const seedHopper = new THREE.Mesh(seedHopperGeometry, seedMaterial);
+        seedHopper.position.set(-1.3, 2.3, 0);
+        seedHopper.userData = seedMain.userData;
+        scene.add(seedHopper);
+        components.push(seedHopper);
+
+        const seedTubeGeometry = new THREE.CylinderGeometry(0.1, 0.1, 0.8, 8);
+        const seedTube = new THREE.Mesh(seedTubeGeometry, seedMaterial);
+        seedTube.position.set(-1.3, 0.6, 0);
+        seedTube.userData = seedMain.userData;
+        scene.add(seedTube);
+        components.push(seedTube);
+
+        const pumpBodyGeometry = new THREE.BoxGeometry(0.9, 0.7, 0.7);
+        const pumpMaterial = new THREE.MeshPhongMaterial({ color: 0x00ff00, wireframe: true });
+        const pumpBody = new THREE.Mesh(pumpBodyGeometry, pumpMaterial);
+        pumpBody.position.set(1.3, 1.5, 0);
+        pumpBody.userData = {
+            name: 'Smart Water Pump',
+            description: 'High-efficiency pump. Flow rate: 5L/min. Pressure: 0-6 bar. Solar-powered with battery backup.'
+        };
+        scene.add(pumpBody);
+        components.push(pumpBody);
+
+        const pipeGeometry = new THREE.CylinderGeometry(0.08, 0.08, 1.2, 8);
+        const pipe1 = new THREE.Mesh(pipeGeometry, pumpMaterial);
+        pipe1.position.set(1.6, 0.9, 0);
+        pipe1.userData = pumpBody.userData;
+        scene.add(pipe1);
+        components.push(pipe1);
+
+        const pipe2 = new THREE.Mesh(pipeGeometry, pumpMaterial);
+        pipe2.position.set(1.0, 0.9, 0);
+        pipe2.userData = pumpBody.userData;
+        scene.add(pipe2);
+        components.push(pipe2);
+
+        const tankGeometry = new THREE.CylinderGeometry(0.4, 0.4, 0.5, 16);
+        const tank = new THREE.Mesh(tankGeometry, pumpMaterial);
+        tank.position.set(1.3, 2.1, 0);
+        tank.userData = pumpBody.userData;
+        scene.add(tank);
+        components.push(tank);
+
+        const controlGeometry = new THREE.BoxGeometry(0.8, 0.3, 0.5);
+        const controlMaterial = new THREE.MeshPhongMaterial({ 
+            color: 0x33ff33, 
+            wireframe: true,
+            emissive: 0x00ff00,
+            emissiveIntensity: 0.4
+        });
+        const controlPanel = new THREE.Mesh(controlGeometry, controlMaterial);
+        controlPanel.position.set(0, 1.7, 0.8);
+        controlPanel.userData = {
+            name: 'Control Panel',
+            description: 'Raspberry Pi 4 controller with 4G/LTE connectivity. Touch interface with real-time monitoring.'
+        };
+        scene.add(controlPanel);
+        components.push(controlPanel);
+
+        const sensorGeometry = new THREE.SphereGeometry(0.15, 12, 12);
+        const sensorMaterial = new THREE.MeshPhongMaterial({
+            color: 0x66ff66,
+            wireframe: true,
+            emissive: 0x00ff00,
+            emissiveIntensity: 0.7
+        });
+        
+        const probeGeometry = new THREE.CylinderGeometry(0.03, 0.03, 0.5, 8);
+        const probeMaterial = new THREE.MeshPhongMaterial({ color: 0x00ff00, wireframe: true });
+
+        for (let i = 0; i < 4; i++) {
+            const sensor = new THREE.Mesh(sensorGeometry, sensorMaterial);
+            sensor.position.set(-1.8 + i * 1.2, 0.3, 0.9);
+            sensor.userData = {
+                name: `Soil Moisture Sensor ${i + 1}`,
+                description: 'Capacitive moisture sensor with temperature compensation. Range: 0-100% VWC. Accuracy: ±2%.'
+            };
+            scene.add(sensor);
+            components.push(sensor);
+
+            const probe = new THREE.Mesh(probeGeometry, probeMaterial);
+            probe.position.set(-1.8 + i * 1.2, 0.05, 0.9);
+            probe.userData = sensor.userData;
+            scene.add(probe);
+            components.push(probe);
+        }
+
+        const cameraGeometry = new THREE.BoxGeometry(0.3, 0.2, 0.2);
+        const cameraMaterial = new THREE.MeshPhongMaterial({ 
+            color: 0x00ff00, 
+            wireframe: true,
+            emissive: 0x00ff00,
+            emissiveIntensity: 0.5
+        });
+        const cameraArray = new THREE.Mesh(cameraGeometry, cameraMaterial);
+        cameraArray.position.set(0, 1.8, 1.1);
+        cameraArray.userData = {
+            name: 'Vision System',
+            description: 'Dual-camera array with infrared. Plant health detection using multispectral imaging.'
+        };
+        scene.add(cameraArray);
+        components.push(cameraArray);
+
+        const batteryGeometry = new THREE.BoxGeometry(1.5, 0.4, 0.8);
+        const batteryMaterial = new THREE.MeshPhongMaterial({ color: 0x00ff00, wireframe: true });
+        const battery = new THREE.Mesh(batteryGeometry, batteryMaterial);
+        battery.position.set(0, 0.6, -0.3);
+        battery.userData = {
+            name: 'Battery Pack',
+            description: 'LiFePO4 battery system. 48V 100Ah. Runtime: 8 hours. Fast charging: 2 hours.'
+        };
+        scene.add(battery);
+        components.push(battery);
+
+        const wheelGeometry = new THREE.CylinderGeometry(0.5, 0.5, 0.3, 16);
+        const wheelMaterial = new THREE.MeshPhongMaterial({
+            color: 0x1a1a1a,
+            wireframe: true
+        });
+
+        const wheelPositions = [
+            { pos: [-1.5, 0.5, 1.2], name: 'Front Left Wheel' },
+            { pos: [1.5, 0.5, 1.2], name: 'Front Right Wheel' },
+            { pos: [-1.5, 0.5, -1.2], name: 'Rear Left Wheel' },
+            { pos: [1.5, 0.5, -1.2], name: 'Rear Right Wheel' }
+        ];
+
+        wheelPositions.forEach(({ pos, name }) => {
+            const wheel = new THREE.Mesh(wheelGeometry, wheelMaterial);
+            wheel.position.set(...pos);
+            wheel.rotation.x = Math.PI / 2;
+            wheel.userData = {
+                name: name,
+                description: 'All-terrain pneumatic wheel. Diameter: 40cm. Independent suspension. Max speed: 5 km/h.'
+            };
+            scene.add(wheel);
+            components.push(wheel);
+            wheels.push(wheel);
+        });
+
+        const axleGeometry = new THREE.CylinderGeometry(0.1, 0.1, 3.5, 8);
+        const axleMaterial = new THREE.MeshPhongMaterial({ color: 0x1a3d1a, wireframe: true });
+        
+        const frontAxle = new THREE.Mesh(axleGeometry, axleMaterial);
+        frontAxle.position.set(0, 0.5, 1.2);
+        frontAxle.rotation.z = Math.PI / 2;
+        scene.add(frontAxle);
+
+        const rearAxle = new THREE.Mesh(axleGeometry, axleMaterial);
+        rearAxle.position.set(0, 0.5, -1.2);
+        rearAxle.rotation.z = Math.PI / 2;
+        scene.add(rearAxle);
+
+        const groundGeometry = new THREE.PlaneGeometry(30, 30);
+        const groundMaterial = new THREE.ShadowMaterial({ opacity: 0.4 });
+        const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+        ground.rotation.x = -Math.PI / 2;
+        ground.position.y = 0;
+        ground.receiveShadow = true;
+        scene.add(ground);
+
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+        const infoPanel = document.getElementById('component-info');
+        const infoTitle = document.getElementById('info-title');
+        const infoDescription = document.getElementById('info-description');
+        const zoomLens = document.getElementById('zoom-lens');
+        let hoveredObject = null;
+        let zoomCamera = null;
+        let zoomRenderer = null;
+        let zoomScene = null;
+        let hoverEnabled = true;
+
+        function updateHoverState() {
+            const scrollY = window.scrollY || window.pageYOffset;
+            const heroHeight = window.innerHeight;
+            
+            hoverEnabled = scrollY < heroHeight * 0.8;
+            
+            if (!hoverEnabled) {
+                if (hoveredObject && hoveredObject.material) {
+                    hoveredObject.material.color.setHex(hoveredObject.userData.originalColor);
+                    hoveredObject.material.emissiveIntensity = 0.3;
+                }
+                hoveredObject = null;
+                infoPanel.classList.remove('active');
+                zoomLens.classList.remove('active');
+            }
+        }
+
+        window.addEventListener('scroll', updateHoverState);
+        updateHoverState();
+
+        function createZoomView() {
+            zoomScene = new THREE.Scene();
+            zoomScene.background = new THREE.Color(0x000000);
+            
+            zoomCamera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000);
+            
+            zoomRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            zoomRenderer.setSize(350, 350);
+            zoomRenderer.domElement.style.borderRadius = '50%';
+            zoomLens.appendChild(zoomRenderer.domElement);
+
+            const zoomAmbient = new THREE.AmbientLight(0xffffff, 0.4);
+            zoomScene.add(zoomAmbient);
+            
+            const zoomSpot = new THREE.SpotLight(0xffff00, 2.5);
+            zoomSpot.position.set(5, 5, 5);
+            zoomScene.add(zoomSpot);
+            
+            const zoomSpot2 = new THREE.SpotLight(0xffff00, 1.5);
+            zoomSpot2.position.set(-5, 3, -5);
+            zoomScene.add(zoomSpot2);
+        }
+
+        createZoomView();
+
+        function onMouseMove(event) {
+            if (!hoverEnabled) return;
+            
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(components);
+
+            if (intersects.length > 0) {
+                const object = intersects[0].object;
+                if (hoveredObject !== object && object.userData.name) {
+                    if (hoveredObject && hoveredObject.material) {
+                        hoveredObject.material.color.setHex(hoveredObject.userData.originalColor);
+                        hoveredObject.material.emissiveIntensity = 0.3;
+                    }
+                    
+                    hoveredObject = object;
+                    
+                    if (!object.userData.originalColor) {
+                        object.userData.originalColor = object.material.color.getHex();
+                    }
+                    object.material.color.setHex(0xffff00);
+                    object.material.emissiveIntensity = 1;
+                    
+                    infoTitle.textContent = object.userData.name;
+                    infoDescription.textContent = object.userData.description;
+                    infoPanel.classList.add('active');
+                    
+                    zoomLens.classList.add('active');
+                    
+                    updateZoomView(object);
+                }
+            } else {
+                if (hoveredObject && hoveredObject.material) {
+                    hoveredObject.material.color.setHex(hoveredObject.userData.originalColor);
+                    hoveredObject.material.emissiveIntensity = 0.3;
+                }
+                hoveredObject = null;
+                infoPanel.classList.remove('active');
+                zoomLens.classList.remove('active');
+            }
+        }
+
+        function updateZoomView(object) {
+            while(zoomScene.children.length > 3) {
+                zoomScene.remove(zoomScene.children[3]);
+            }
+            
+            const clonedGeometry = object.geometry.clone();
+            const clonedMaterial = new THREE.MeshPhongMaterial({
+                color: 0xffff00,
+                wireframe: true,
+                emissive: 0xffff00,
+                emissiveIntensity: 1
+            });
+            const clonedObject = new THREE.Mesh(clonedGeometry, clonedMaterial);
+            zoomScene.add(clonedObject);
+            
+            const box = new THREE.Box3().setFromObject(clonedObject);
+            const center = box.getCenter(new THREE.Vector3());
+            const size = box.getSize(new THREE.Vector3());
+            const maxDim = Math.max(size.x, size.y, size.z);
+            
+            zoomCamera.position.set(center.x + maxDim * 0.8, center.y + maxDim * 0.5, center.z + maxDim * 1.8);
+            zoomCamera.lookAt(center);
+            
+            clonedObject.rotation.copy(object.rotation);
+            clonedObject.rotation.y += Math.PI / 6;
+        }
+
+        window.addEventListener('mousemove', onMouseMove);
+
+        let isDragging = false;
+        let previousMousePosition = { x: 0, y: 0 };
+
+        renderer.domElement.addEventListener('mousedown', () => { isDragging = true; });
+        renderer.domElement.addEventListener('mouseup', () => { isDragging = false; });
+        renderer.domElement.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                const deltaX = e.clientX - previousMousePosition.x;
+                const deltaY = e.clientY - previousMousePosition.y;
+                scene.rotation.y += deltaX * 0.01;
+                scene.rotation.x += deltaY * 0.005;
+                scene.rotation.x = Math.max(-0.5, Math.min(0.5, scene.rotation.x));
+            }
+            previousMousePosition = { x: e.clientX, y: e.clientY };
+        });
+
+        let time = 0;
+        function animate() {
+            requestAnimationFrame(animate);
+            time += 0.01;
+
+            if (!isDragging) {
+                scene.rotation.y += 0.002;
+            }
+
+            wheels.forEach(wheel => {
+                wheel.rotation.y += 0.03;
+            });
+
+            components.forEach((comp, i) => {
+                if (comp.userData.name && comp.userData.name.includes('Sensor')) {
+                    comp.position.y = 0.3 + Math.sin(time + i) * 0.05;
+                }
+            });
+
+            pointLight.intensity = 0.6 + Math.sin(time * 2) * 0.2;
+
+            if (hoveredObject) {
+                zoomRenderer.render(zoomScene, zoomCamera);
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
